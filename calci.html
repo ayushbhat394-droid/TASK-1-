@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Navy Blue Calculator</title>
+<style>
+  :root{
+    --navy: #0a2342;
+    --navy-2: #0f2f5a;
+    --navy-3: #133a73;
+    --accent: #4cc9f0;
+    --text: #e8f1ff;
+    --muted: #a9c1e8;
+    --danger: #ff6b6b;
+  }
+
+  * { box-sizing: border-box; }
+
+  body{
+    margin:0;
+    min-height:100dvh;
+    display:grid;
+    place-items:center;
+    background: radial-gradient(1200px 800px at 70% -10%, #184a8c22, transparent 60%),
+                linear-gradient(180deg, #061428, #081b34);
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+    color: var(--text);
+  }
+
+  .calc{
+    width: min(92vw, 380px);
+    background: linear-gradient(165deg, var(--navy), var(--navy-2));
+    border: 1px solid #264a86;
+    border-radius: 18px;
+    box-shadow: 0 20px 50px #0008, inset 0 1px 0 #ffffff14;
+    padding: 14px;
+  }
+
+  .brand{
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 6px 6px 10px 6px; color: var(--muted); font-size: 12px; letter-spacing:.08em;
+  }
+
+  .screen{
+    background: linear-gradient(180deg, #0b1e3a, #0b2345);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 18px;
+    min-height: 84px;
+    display:flex; flex-direction:column; gap:6px; justify-content:center; align-items:flex-end;
+    box-shadow: inset 0 0 0 1px #264a86, inset 0 8px 24px #00000050;
+    overflow:hidden;
+  }
+  .screen .prev{
+    font-size: 14px; color: var(--muted); min-height: 20px; word-break: break-all;
+  }
+  .screen .curr{
+    font-size: clamp(28px, 7vw, 40px);
+    font-weight: 700; letter-spacing:.02em; word-break: break-all;
+  }
+
+  .keys{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  button.key{
+    appearance:none; border:none; cursor:pointer;
+    padding: 16px 12px; border-radius: 14px;
+    font-size: 18px; font-weight: 600;
+    color: var(--text);
+    background: linear-gradient(180deg, var(--navy-3), #0c2b56);
+    box-shadow: 0 6px 16px #0006, inset 0 1px 0 #ffffff15;
+    transition: transform .04s ease, filter .2s ease, background .2s ease;
+    will-change: transform;
+  }
+  button.key:hover{ filter: brightness(1.08); }
+  button.key:active{ transform: translateY(2px) scale(0.99); }
+
+  .key.op{
+    background: linear-gradient(180deg, #144381, #0e376a);
+    outline: 1px solid #265899aa;
+  }
+  .key.equals{
+    background: linear-gradient(180deg, var(--accent), #1aa9da);
+    color: #041423;
+    font-weight: 800;
+  }
+  .key.util{
+    background: linear-gradient(180deg, #1a2f55, #102648);
+    color: #d9e7ff;
+  }
+  .key.warn{
+    background: linear-gradient(180deg, #b43b3b, #932f2f);
+  }
+
+  .span-2{ grid-column: span 2; }
+
+  .footer{
+    margin-top:10px;
+    text-align:center;
+    font-size:12px; color: #9db7e6;
+    opacity:.9;
+  }
+
+  @media (prefers-reduced-motion:no-preference){
+    .glow{
+      position:relative;
+    }
+    .glow::after{
+      content:""; position:absolute; inset:0; border-radius:14px;
+      box-shadow: 0 0 0 0 rgba(76,201,240,.0);
+      animation: pulse 2s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes pulse{
+      0%,100%{ box-shadow: 0 0 0 0 rgba(76,201,240,.0); }
+      50%{ box-shadow: 0 0 22px 2px rgba(76,201,240,.25); }
+    }
+  }
+</style>
+</head>
+<body>
+  <main class="calc" role="application" aria-label="Calculator">
+    <div class="brand">
+      <span>NAVY CALC</span>
+      <span id="status" aria-live="polite"></span>
+    </div>
+
+    <section class="screen" aria-live="polite" aria-atomic="true">
+      <div class="prev" id="prev"></div>
+      <div class="curr" id="curr">0</div>
+    </section>
+
+    <section class="keys" id="keys">
+      <!-- Row 1 -->
+      <button class="key util warn" data-action="clear" aria-label="All Clear">AC</button>
+      <button class="key util" data-action="delete" aria-label="Delete">DEL</button>
+      <button class="key util" data-value="%" aria-label="Percent">%</button>
+      <button class="key op" data-op="÷" aria-label="Divide">÷</button>
+
+      <!-- Row 2 -->
+      <button class="key" data-value="7">7</button>
+      <button class="key" data-value="8">8</button>
+      <button class="key" data-value="9">9</button>
+      <button class="key op" data-op="×" aria-label="Multiply">×</button>
+
+      <!-- Row 3 -->
+      <button class="key" data-value="4">4</button>
+      <button class="key" data-value="5">5</button>
+      <button class="key" data-value="6">6</button>
+      <button class="key op" data-op="−" aria-label="Subtract">−</button>
+
+      <!-- Row 4 -->
+      <button class="key" data-value="1">1</button>
+      <button class="key" data-value="2">2</button>
+      <button class="key" data-value="3">3</button>
+      <button class="key op" data-op="+" aria-label="Add">+</button>
+
+      <!-- Row 5 -->
+      <button class="key span-2" data-value="0">0</button>
+      <button class="key" data-value="." aria-label="Decimal">.</button>
+      <button class="key equals glow" data-action="equals" aria-label="Equals">=</button>
+    </section>
+
+    <div class="footer">Keyboard: 0–9 · + − × ÷ · Enter · Backspace · %</div>
+  </main>
+
+<script>
+(() => {
+  const prevEl = document.getElementById('prev');
+  const currEl = document.getElementById('curr');
+  const keysEl = document.getElementById('keys');
+  const statusEl = document.getElementById('status');
+
+  let curr = '0';       // current input as string
+  let prev = null;      // previous numeric value
+  let op = null;        // current operator: + − × ÷
+  let justEvaluated = false;
+
+  const format = (val) => {
+    // avoid scientific for typical range; keep decimals
+    if (val === '' || val === null || val === undefined) return '0';
+    const num = Number(val);
+    if (!Number.isFinite(num)) return 'Error';
+    // Split to preserve decimals
+    const [int, dec] = String(val).split('.');
+    const intFmt = Number(int).toLocaleString();
+    return dec !== undefined ? `${intFmt}.${dec}` : intFmt;
+  };
+
+  const updateScreen = () => {
+    currEl.textContent = curr;
+    prevEl.textContent = op && prev !== null ? `${format(prev)} ${op}` : '';
+  };
+
+  const setCurr = (s) => { curr = s; updateScreen(); };
+
+  const appendDigit = (d) => {
+    if (justEvaluated) { curr = '0'; justEvaluated = false; }
+    if (d === '.') {
+      if (curr.includes('.')) return;
+      curr = curr + '.';
+    } else {
+      if (curr === '0') curr = d;
+      else curr += d;
+    }
+    updateScreen();
+  };
+
+  const applyPercent = () => {
+    const n = Number(curr);
+    if (!Number.isFinite(n)) return;
+    curr = String(n / 100);
+    updateScreen();
+  };
+
+  const setOperator = (nextOp) => {
+    // If an operator exists, compute with current curr first
+    if (op && prev !== null && curr !== '') {
+      compute();
+    } else {
+      prev = Number(curr);
+    }
+    op = nextOp;
+    justEvaluated = false;
+    curr = '0';
+    updateScreen();
+  };
+
+  const compute = () => {
+    if (op === null || prev === null) return;
+    const a = prev;
+    const b = Number(curr);
+    let result;
+
+    if (op === '+') result = a + b;
+    if (op === '−') result = a - b;
+    if (op === '×') result = a * b;
+    if (op === '÷') {
+      if (b === 0) {
+        statusEl.textContent = 'Cannot divide by zero';
+        setTimeout(() => statusEl.textContent = '', 1600);
+        curr = '0'; updateScreen(); return;
+      }
+      result = a / b;
+    }
+
+    // Normalize to avoid long floating artifacts
+    result = Number.parseFloat(result.toFixed(12)) * 1;
+    curr = String(result);
+    prev = null;
+    op = null;
+    justEvaluated = true;
+    updateScreen();
+  };
+
+  const clearAll = () => {
+    curr = '0'; prev = null; op = null; justEvaluated = false; updateScreen();
+  };
+
+  const deleteOne = () => {
+    if (justEvaluated) { clearAll(); return; }
+    if (curr.length <= 1) { curr = '0'; }
+    else curr = curr.slice(0, -1);
+    updateScreen();
+  };
+
+  // Click handling via event delegation
+  keysEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('button.key');
+    if (!btn) return;
+
+    const val = btn.dataset.value;
+    const action = btn.dataset.action;
+    const operator = btn.dataset.op;
+
+    if (val !== undefined) {
+      appendDigit(val);
+      return;
+    }
+    if (operator) {
+      setOperator(operator);
+      return;
+    }
+    if (action === 'equals') { compute(); return; }
+    if (action === 'clear')  { clearAll(); return; }
+    if (action === 'delete') { deleteOne(); return; }
+  });
+
+  // Keyboard support
+  window.addEventListener('keydown', (e) => {
+    const k = e.key;
+
+    if ((k >= '0' && k <= '9') || k === '.') {
+      appendDigit(k);
+      return;
+    }
+    if (k === 'Backspace') { deleteOne(); return; }
+    if (k === 'Escape') { clearAll(); return; }
+    if (k === 'Enter' || k === '=') { compute(); return; }
+
+    if (k === '+' || k === '-') {
+      setOperator(k === '+' ? '+' : '−');
+      return;
+    }
+    if (k === '*' || k.toLowerCase() === 'x') {
+      setOperator('×'); return;
+    }
+    if (k === '/') { setOperator('÷'); return; }
+    if (k === '%') { applyPercent(); return; }
+  });
+
+  // Wire percent button
+  document.querySelector('[data-value="%"]').addEventListener('click', applyPercent);
+
+  // Initial paint
+  updateScreen();
+})();
+</script>
+</body>
+</html>
